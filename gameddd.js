@@ -7,7 +7,7 @@ const cssCode = `body {
 p {
   width: 100px;
   height: 100px;
-  background: red;
+  background: blue;
   position: relative;
   animation: mymove 5s infinite;
 }`;
