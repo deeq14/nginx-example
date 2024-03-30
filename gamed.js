@@ -1,5 +1,10 @@
 // Example usage:
-const cssCode = `p {
+const cssCode = `body {
+  width: 100px;
+  height: 100px;
+  background: blue;
+}
+p {
   width: 100px;
   height: 100px;
   background: red;
