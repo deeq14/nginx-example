@@ -23,34 +23,39 @@ p {
   }
 }`;
 
-function splitCssRules(cssCode) {
-  // Remove newline characters from the CSS code
-  const cssM = cssCode.replace(/\n/g, '');
-
-  let cssArray = [];
-  let startIndex = 0;
-  let nestedBrackets = 0;
-
-  for (let i = 0; i < cssM.length; i++) {
-    if (cssM[i] === '{') {
-      nestedBrackets++;
-    } else if (cssM[i] === '}') {
-      nestedBrackets--;
-    }
-
-    if (nestedBrackets === 0 && cssM[i] === '}') {
-      cssArray.push(cssM.substring(startIndex, i + 1).trim());
-      startIndex = i + 1;
-    }
-  }
-
-  return cssArray;
+function parse(rawCss) {
+  const rules = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  const newRules = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+  rawCss = rawCss.replace(/\@(charset|namespace|import).*\;/g, function (imp) {
+    rules.push(imp);
+    return '';
+  });
+  // let matches = css.match(/(\*|\.|\[|\w|\:root|\#|@)[\s\S]*?\}|\}|\/\*[\s\S]*?\*\//g)
+  const matches = rawCss.match(/(\*|\.|\[|\w|\:|\#|\@|\d|\$|\!|\%|\^|\&)[\s\S]*?\}|\}|\/\*[\s\S]*?\*\//g);
+  if (matches) matches.forEach(function (rule, i) {
+    if (i == 0) return rules.push(rule);
+    if (rule == '}') return rules[rules.length - 1] += '}';
+    const opens = rules[rules.length - 1].split(/\{/g).length;
+    const closes = rules[rules.length - 1].split(/\}/g).length;
+    const gap = opens - closes;
+    if (gap == 0) rules.push(rule); else rules[rules.length - 1] += rule;
+  });
+  return rules;
 }
 
-const cssArray = splitCssRules(cssCode);
+function createStyle(cssText) {
+  const styleSheet = document.styleSheets[0];
+  const rules = parse(cssText);
 
-const styleSheet = document.styleSheets[0];
-cssArray.forEach(function (rule) {
-  styleSheet.insertRule(rule, styleSheet.cssRules.length);
-});
+  if (rules) {
+    rules.forEach(function (rule) {
+      rule = parse(rule)
+      styleSheet.insertRule(rule, styleSheet.cssRules.length);
+    });
+  }
+}
+
+createStyle(cssCode);
+
+
 
