@@ -43,4 +43,3 @@ cssArray.forEach(function (rule) {
   styleSheet.insertRule(rule, styleSheet.cssRules.length);
 });
 
-console.log(cssArray);
